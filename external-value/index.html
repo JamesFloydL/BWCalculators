@@ -20,7 +20,7 @@
           type="number" 
           id="controlInput" 
           min="0" 
-          max="20" 
+          max="100" 
           step="0.1" 
           value="7.0"
           aria-label="Control cost percentage"
@@ -29,7 +29,7 @@
           type="range" 
           id="controlSlider" 
           min="0" 
-          max="20" 
+          max="100" 
           step="0.1" 
           value="7.0"
           aria-label="Control cost percentage slider"
@@ -54,6 +54,7 @@
     </section>
 
     <section class="controls-section">
+      <p class="caption">Return on control cost over one year.</p>
       <label for="opportunitiesInput" class="opportunities-label">
         Custom Opportunities (comma-separated %):
       </label>
@@ -63,13 +64,12 @@
         placeholder="0, 5, 10, 15"
         aria-label="Custom opportunity rates"
       >
-      <button id="copyBtn" class="copy-button" aria-label="Copy table as CSV">
-        Copy Table as CSV
+      <button id="copyBtn" class="copy-button" aria-label="Calculate">
+        Calculate
       </button>
     </section>
 
     <footer class="calculator-footer">
-      <p class="caption">Return on control cost over one year.</p>
     </footer>
   </main>
 

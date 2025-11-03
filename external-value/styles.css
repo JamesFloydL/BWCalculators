@@ -302,6 +302,7 @@ body {
   font-size: 0.875rem;
   color: var(--bw-muted);
   font-style: italic;
+  margin-bottom: 0.5rem;
 }
 
 @media (max-width: 640px) {
