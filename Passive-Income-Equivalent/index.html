@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Passive Income Equivalent Calculator</title>
+  <title>Passive Income Portfolio Equivalent Calculator</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body {
@@ -148,6 +148,67 @@
       color: #6b7280;
     }
 
+    .slider {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 8px;
+      background: #e5e7eb;
+      outline: none;
+      border-radius: 4px;
+      width: 100%;
+      max-width: 350px;
+      margin-top: 10px;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #1f2937;
+      cursor: pointer;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: #1f2937;
+      cursor: pointer;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .rate-input-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .rate-numeric-input {
+      font-family: 'Inter', sans-serif;
+      font-size: 18px;
+      font-weight: 500;
+      padding: 8px 15px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      text-align: center;
+      width: 100px;
+      background-color: #ffffff;
+      color: #1f2937;
+    }
+
+    .rate-numeric-input:focus {
+      outline: none;
+      border-color: #1f2937;
+      box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.1);
+    }
+
     @media (max-width: 600px) {
       .header-logo {
         max-width: 280px;
@@ -170,11 +231,11 @@
 
 <div class="header-section">
   <img src="header-logo.png" alt="BetterWealth Logo" class="header-logo">
-  <h2 class="header-subtitle">Passive Income Equivalent Calculator</h2>
+  <h2 class="header-subtitle">Passive Income Portfolio Equivalent Calculator</h2>
 </div>
 
 <div class="calculator-form">
-  <p class="description">Find out what size portfolio you'd need to safely earn your target passive income at a 4% distribution rate.</p>
+  <p class="description">Find out what size portfolio you'd need to safely earn your target passive income at your desired distribution rate.</p>
   
   <div class="input-container">
     <label for="monthlyIncome" class="input-label">Desired Passive Monthly Income:</label>
@@ -188,11 +249,31 @@
     >
   </div>
   
-  <div id="result">Enter your desired monthly income to see the required portfolio size.</div>
-  
-  <div class="formula-note">
-    Formula: Required Portfolio = (Monthly Income × 12) / 0.04
+  <div class="input-container">
+    <label for="distributionRate" class="input-label">Distribution Rate:</label>
+    <div class="rate-input-group">
+      <input 
+        type="number" 
+        id="distributionRateInput" 
+        class="rate-numeric-input" 
+        min="0.1" 
+        max="100" 
+        step="0.1" 
+        value="4.0"
+      >
+      <input 
+        type="range" 
+        id="distributionRateSlider" 
+        class="slider" 
+        min="0.1" 
+        max="100" 
+        step="0.1" 
+        value="4.0"
+      >
+    </div>
   </div>
+  
+  <div id="result">Enter your desired monthly income to see the required portfolio size.</div>
 </div>
 
 <div style="text-align: center; margin-top: 40px; padding: 20px;">
@@ -220,9 +301,11 @@ function roundToNearest(value, nearest) {
 
 function calculatePortfolio() {
   const input = document.getElementById('monthlyIncome');
+  const rateInput = document.getElementById('distributionRateInput');
   const resultDiv = document.getElementById('result');
   
   const monthlyIncome = parseCurrency(input.value);
+  const distributionRate = parseFloat(rateInput.value);
   
   if (monthlyIncome <= 0) {
     resultDiv.innerHTML = 'Enter your desired monthly income to see the required portfolio size.';
@@ -230,13 +313,23 @@ function calculatePortfolio() {
   }
   
   const annualIncome = monthlyIncome * 12;
-  const requiredPortfolio = annualIncome / 0.04;
+  const requiredPortfolio = annualIncome / (distributionRate / 100);
   const roundedPortfolio = roundToNearest(requiredPortfolio, 1000);
   
   const formattedIncome = formatCurrency(monthlyIncome);
   const formattedPortfolio = formatCurrency(roundedPortfolio);
   
-  resultDiv.innerHTML = `To earn ${formattedIncome} per month at a 4% annual distribution rate, you'd need a portfolio of ${formattedPortfolio}.`;
+  resultDiv.innerHTML = `Portfolio Needed @ ${distributionRate.toFixed(1)}% = ${formattedPortfolio}`;
+}
+
+function syncDistributionRate(value) {
+  const rateInput = document.getElementById('distributionRateInput');
+  const rateSlider = document.getElementById('distributionRateSlider');
+  
+  rateInput.value = parseFloat(value).toFixed(1);
+  rateSlider.value = value;
+  
+  calculatePortfolio();
 }
 
 document.getElementById('monthlyIncome').addEventListener('input', function(e) {
@@ -255,6 +348,14 @@ document.getElementById('monthlyIncome').addEventListener('focus', function(e) {
   if (value > 0) {
     e.target.value = value.toString();
   }
+});
+
+document.getElementById('distributionRateInput').addEventListener('input', function(e) {
+  syncDistributionRate(e.target.value);
+});
+
+document.getElementById('distributionRateSlider').addEventListener('input', function(e) {
+  syncDistributionRate(e.target.value);
 });
 </script>
 

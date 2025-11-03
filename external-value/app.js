@@ -56,17 +56,6 @@ function generateCSV(controlCost, opportunities) {
     return csv;
 }
 function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        const btn = document.getElementById('copyBtn');
-        if (!btn)
-            return;
-        const originalText = btn.textContent;
-        btn.textContent = 'Copied!';
-        setTimeout(() => {
-            btn.textContent = originalText;
-        }, 2000);
-    });
-}
 const state = {
     controlCost: 7.0,
     defaultOpportunities: [0, 5, 10, 15],
@@ -117,9 +106,15 @@ function init() {
         updateDisplay();
     });
     copyBtn?.addEventListener('click', () => {
-        const opportunities = state.customOpportunities || state.defaultOpportunities;
-        const csv = generateCSV(state.controlCost, opportunities);
-        copyToClipboard(csv);
+        const btn = document.getElementById('copyBtn');
+        if (!btn)
+            return;
+        const originalText = btn.textContent;
+        btn.textContent = 'take a gander';
+        updateDisplay();
+        setTimeout(() => {
+            btn.textContent = originalText;
+        }, 1500);
     });
     updateDisplay();
 }
