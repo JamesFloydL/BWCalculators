@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Passive Income Portfolio Equivalent Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #ffffff;
+      margin: 0;
+      padding: 20px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .header-section {
+      text-align: center;
+      margin: 40px auto 20px;
+      max-width: 800px;
+    }
+
+    .header-logo {
+      max-width: 400px;
+      width: 100%;
+      height: auto;
+      margin-bottom: 15px;
+    }
+
+    .header-subtitle {
+      font-family: 'Inter', sans-serif;
+      color: #1a1a1a;
+      font-size: 28px;
+      font-weight: 600;
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
+
+    h1 {
+      font-family: 'Inter', sans-serif;
+      color: #1a1a1a;
+      text-align: center;
+      font-size: 60px;
+      margin-top: 40px;
+    }
+
+    .calculator-form {
+      border: 2px solid #e5e7eb;
+      padding: 30px;
+      margin: 0 auto;
+      border-radius: 16px;
+      background-color: #f9fafb;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Two-column layout for inputs */
+    .inputs-row {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .input-column {
+      flex: 1 1 320px;
+      min-width: 260px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .description {
+      font-family: 'Inter', sans-serif;
+      color: #6b7280;
+      text-align: center;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    .input-container {
+      text-align: center;
+      margin-bottom: 10px;
+      width: 100%;
+    }
+
+    .input-label {
+      font-family: 'Inter', sans-serif;
+      color: #374151;
+      font-size: 18px;
+      font-weight: 500;
+      display: block;
+      margin-bottom: 15px;
+    }
+
+    /* Primary input style used by both boxes */
+    .income-input {
+      font-family: 'Inter', sans-serif;
+      font-size: 32px;
+      font-weight: 600;
+      padding: 15px 20px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      text-align: center;
+      width: 100%;
+      max-width: 350px;
+      background-color: #ffffff;
+      color: #1f2937;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-sizing: border-box;
+    }
+
+    .income-input:focus {
+      outline: none;
+      border-color: #1f2937;
+      box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.08);
+    }
+
+    #result {
+      font-family: 'Inter', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      background-color: #ffffff;
+      color: #1f2937;
+      padding: 25px;
+      border-radius: 12px;
+      border: 2px solid #e5e7eb;
+      margin-top: 25px;
+      line-height: 1.6;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .formula-note {
+      font-family: 'Inter', sans-serif;
+      text-align: center;
+      background-color: #f9fafb;
+      padding: 15px 20px;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      margin-top: 20px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #6b7280;
+    }
+
+    .rate-input-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 5px;
+      width: 100%;
+    }
+
+    /* smaller supplemental rate input (if ever used) */
+    .rate-numeric-input {
+      font-family: 'Inter', sans-serif;
+      font-size: 18px;
+      font-weight: 500;
+      padding: 8px 15px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      text-align: center;
+      width: 100px;
+      background-color: #ffffff;
+      color: #1f2937;
+    }
+
+    .rate-numeric-input:focus {
+      outline: none;
+      border-color: #1f2937;
+      box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.1);
+    }
+
+    @media (max-width: 600px) {
+      .header-logo {
+        max-width: 280px;
+      }
+      .header-subtitle {
+        font-size: 20px;
+      }
+      .income-input {
+        font-size: 24px;
+        max-width: 100%;
+      }
+      #result {
+        font-size: 18px;
+        padding: 20px;
+      }
+      .inputs-row {
+        gap: 16px;
+      }
+      .input-column {
+        flex-basis: 100%;
+      }
+    }
+
+    @media (min-width: 601px) and (max-width: 1024px) {
+      .calculator-form {
+        width: 70%;
+      }
+      .income-input {
+        max-width: 100%;
+      }
+    }
+
+    @media (min-width: 1025px) {
+      .calculator-form {
+        width: 50%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header-section">
+  <img src="header-logo.png" alt="BetterWealth Logo" class="header-logo">
+  <h2 class="header-subtitle">Passive Income Portfolio Equivalent Calculator</h2>
+</div>
+
+<div class="calculator-form">
+  <p class="description">Find out what size portfolio you'd need to safely earn your target passive income at your desired distribution rate.</p>
+
+  <!-- Two-column inputs row -->
+  <div class="inputs-row">
+    <div class="input-column">
+      <div class="input-container">
+        <label for="monthlyIncome" class="input-label">Desired Passive Monthly Income:</label>
+        <input
+          type="text"
+          id="monthlyIncome"
+          class="income-input"
+          value="$5,000"
+          autocomplete="off"
+        >
+      </div>
+    </div>
+
+    <div class="input-column">
+      <div class="input-container">
+        <label for="distributionRate" class="input-label">Distribution Rate:</label>
+        <div class="rate-input-group">
+          <!-- numeric rate input uses the same primary visual style -->
+          <input
+            type="number"
+            id="distributionRateInput"
+            class="income-input rate-numeric-input"
+            min="0.1"
+            max="100"
+            step="0.1"
+            value="4.0"
+            aria-label="Distribution rate percentage"
+          >
+          <!-- slider removed per request -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="result">Enter your desired monthly income to see the required portfolio size.</div>
+</div>
+
+<div style="text-align: center; margin-top: 40px; padding: 20px;">
+  <a href="/TheCenterofItAll/index.html" style="display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #1f2937 0%, #374151 100%); color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 600;">Back to The Center of It All</a>
+</div>
+
+<script>
+function formatCurrency(value) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(value);
+}
+
+function parseCurrency(value) {
+  const cleanValue = String(value).replace(/[^0-9.]/g, '');
+  return parseFloat(cleanValue) || 0;
+}
+
+function roundToNearest(value, nearest) {
+  return Math.round(value / nearest) * nearest;
+}
+
+function calculatePortfolio() {
+  const input = document.getElementById('monthlyIncome');
+  const rateInput = document.getElementById('distributionRateInput');
+  const resultDiv = document.getElementById('result');
+
+  const monthlyIncome = parseCurrency(input.value);
+  const distributionRate = parseFloat(rateInput.value);
+
+  if (monthlyIncome <= 0) {
+    resultDiv.innerHTML = 'Enter your desired monthly income to see the required portfolio size.';
+    return;
+  }
+
+  const annualIncome = monthlyIncome * 12;
+  const requiredPortfolio = annualIncome / (distributionRate / 100);
+  const roundedPortfolio = roundToNearest(requiredPortfolio, 1000);
+
+  const formattedPortfolio = formatCurrency(roundedPortfolio);
+
+  resultDiv.innerHTML = `Portfolio Needed @ ${distributionRate.toFixed(1)}% = ${formattedPortfolio}`;
+}
+
+// When distribution rate changes, recalc
+document.getElementById('distributionRateInput').addEventListener('input', function(e) {
+  calculatePortfolio();
+});
+
+// Monthly input handlers: format on blur, show raw number on focus, recalc on input
+document.getElementById('monthlyIncome').addEventListener('input', function(e) {
+  calculatePortfolio();
+});
+
+document.getElementById('monthlyIncome').addEventListener('blur', function(e) {
+  const value = parseCurrency(e.target.value);
+  if (value > 0) {
+    e.target.value = formatCurrency(value);
+  }
+});
+
+document.getElementById('monthlyIncome').addEventListener('focus', function(e) {
+  const value = parseCurrency(e.target.value);
+  if (value > 0) {
+    e.target.value = value.toString();
+  }
+});
+
+// On initial load: ensure inputs are formatted and calculation runs
+window.addEventListener('DOMContentLoaded', function() {
+  // Ensure monthly input is formatted as currency (if it already contains a numeric value or formatted text)
+  const monthlyInput = document.getElementById('monthlyIncome');
+  const current = parseCurrency(monthlyInput.value);
+  if (current > 0) {
+    monthlyInput.value = formatCurrency(current);
+  } else {
+    // fallback default
+    monthlyInput.value = formatCurrency(5000);
+  }
+
+  // Ensure distribution rate has a numeric default
+  const rateInput = document.getElementById('distributionRateInput');
+  if (!rateInput.value || isNaN(parseFloat(rateInput.value))) {
+    rateInput.value = '4.0';
+  }
+
+  // run the calculation immediately so result is shown on page load
+  calculatePortfolio();
+});
+</script>
+
+</body>
+</html>
