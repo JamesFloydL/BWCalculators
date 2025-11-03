@@ -344,7 +344,7 @@
   <form id="myForm">
     <div class="slider-container">
       Cash IRR: <span id="cashIRRDisplay" class="editable-value">3.5</span>%<br>
-      <input type="range" class="slider" id="cashIRRSlider" name="cashIRR" min="0" max="20" step="0.5" value="3.5">
+      <input type="range" class="slider" id="cashIRRSlider" name="cashIRR" min="0" max="100" step="0.01" value="3.5">
     </div>
     <div class="slider-container">
       Tax Rate: <span id="taxRateDisplay" class="editable-value">32</span>%<br>
@@ -352,7 +352,7 @@
     </div>
     <div class="slider-container">
       Mgmt Fee: <span id="mgmtFeeDisplay" class="editable-value">1</span>%<br>
-      <input type="range" class="slider" id="mgmtFeeSlider" name="mgmtFee" min="0" max="25" step="0.5" value="1">
+      <input type="range" class="slider" id="mgmtFeeSlider" name="mgmtFee" min="0" max="25" step="0.01" value="1">
     </div>
     <div class="slider-container">
       Cost of Insurance: <span id="costInsDisplay" class="editable-value">5</span>%<br>
@@ -418,7 +418,7 @@ function makeEditable(displayId, sliderId, min, max, step) {
       var newValue = parseFloat(inputVal);
       if (!isNaN(newValue) && newValue >= min && newValue <= max) {
         var roundedValue = Math.round(newValue / step) * step;
-        display.innerHTML = roundedValue.toFixed(step < 1 ? 1 : 0);
+        display.innerHTML = roundedValue.toFixed(2);
         slider.value = roundedValue;
         calculate();
       } else {
@@ -438,40 +438,40 @@ function makeEditable(displayId, sliderId, min, max, step) {
 }
 
 window.onload = function() {
-  makeEditable('cashIRRDisplay', 'cashIRRSlider', 0, 20, 0.5);
+  makeEditable('cashIRRDisplay', 'cashIRRSlider', 0, 100, 0.01);
   makeEditable('taxRateDisplay', 'taxRateSlider', 0, 100, 0.01);
-  makeEditable('mgmtFeeDisplay', 'mgmtFeeSlider', 0, 25, 0.5);
+  makeEditable('mgmtFeeDisplay', 'mgmtFeeSlider', 0, 25, 0.01);
   makeEditable('costInsDisplay', 'costInsSlider', 0, 100, 0.01);
   makeEditable('chronicDisplay', 'chronicSlider', 0, 100, 0.01);
   makeEditable('creditorDisplay', 'creditorSlider', 0, 100, 0.01);
   makeEditable('riskPremiumDisplay', 'riskPremiumSlider', 0, 100, 0.01);
   
   document.getElementById('cashIRRSlider').oninput = function() {
-    document.getElementById('cashIRRDisplay').innerHTML = this.value;
+    document.getElementById('cashIRRDisplay').innerHTML = parseFloat(this.value).toFixed(2);
     calculate();
   };
   document.getElementById('taxRateSlider').oninput = function() {
-    document.getElementById('taxRateDisplay').innerHTML = this.value;
+    document.getElementById('taxRateDisplay').innerHTML = parseFloat(this.value).toFixed(2);
     calculate();
   };
   document.getElementById('mgmtFeeSlider').oninput = function() {
-    document.getElementById('mgmtFeeDisplay').innerHTML = this.value;
+    document.getElementById('mgmtFeeDisplay').innerHTML = parseFloat(this.value).toFixed(2);
     calculate();
   };
   document.getElementById('costInsSlider').oninput = function() {
-    document.getElementById('costInsDisplay').innerHTML = this.value;
+    document.getElementById('costInsDisplay').innerHTML = parseFloat(this.value).toFixed(2);
     calculate();
   };
   document.getElementById('chronicSlider').oninput = function() {
-    document.getElementById('chronicDisplay').innerHTML = this.value;
+    document.getElementById('chronicDisplay').innerHTML = parseFloat(this.value).toFixed(2);
     calculate();
   };
   document.getElementById('creditorSlider').oninput = function() {
-    document.getElementById('creditorDisplay').innerHTML = this.value;
+    document.getElementById('creditorDisplay').innerHTML = parseFloat(this.value).toFixed(2);
     calculate();
   };
   document.getElementById('riskPremiumSlider').oninput = function() {
-    document.getElementById('riskPremiumDisplay').innerHTML = this.value;
+    document.getElementById('riskPremiumDisplay').innerHTML = parseFloat(this.value).toFixed(2);
     calculate();
   };
   
@@ -570,16 +570,15 @@ window.calculate = function() {
     }
     
     var eq = Math.max(0, wlShown);
-    var rp = Math.max(0, Math.min(1, riskPremiumPct / 100));
-    var riskDiscount = Math.min(0.99, rp / (RISK_FREE + rp));
-    var marketEquivalent = eq / (1 - riskDiscount);
-    var riskAdjustedPercent = Math.min(1, marketEquivalent) * 100;
+    var rp = riskPremiumPct / 100;
+    var marketEquivalent = eq * (1 + rp / RISK_FREE);
+    var riskAdjustedPercent = marketEquivalent * 100;
     
     riskAdjustedBox.innerHTML = 'Risk-Adjusted Return: ' + riskAdjustedPercent.toFixed(2) + '%';
     riskAdjustedBox.classList.add('show');
     
     var wlReturnPercent = (wlShown * 100).toFixed(2);
-    riskAdjustedExpl.innerHTML = 'A Whole Life Equivalent return of ' + wlReturnPercent + '% feels like a ' + riskAdjustedPercent.toFixed(2) + '% market return when you account for risk (risk-free 4%, risk premium ' + riskPremiumPct + '%).';
+    riskAdjustedExpl.innerHTML = 'A Whole Life Equivalent return of ' + wlReturnPercent + '% feels like a ' + riskAdjustedPercent.toFixed(2) + '% market return when you account for risk (risk-free 4%, risk premium ' + riskPremiumPct.toFixed(2) + '%).';
     riskAdjustedExpl.classList.add('show');
   } else {
     riskAdjustedBox.classList.remove('show');
