@@ -348,7 +348,7 @@
     </div>
     <div class="slider-container">
       Tax Rate: <span id="taxRateDisplay" class="editable-value">32</span>%<br>
-      <input type="range" class="slider" id="taxRateSlider" name="taxRate" min="0" max="100" step="1" value="32">
+      <input type="range" class="slider" id="taxRateSlider" name="taxRate" min="0" max="100" step="0.01" value="32">
     </div>
     <div class="slider-container">
       Mgmt Fee: <span id="mgmtFeeDisplay" class="editable-value">1</span>%<br>
@@ -356,15 +356,15 @@
     </div>
     <div class="slider-container">
       Cost of Insurance: <span id="costInsDisplay" class="editable-value">5</span>%<br>
-      <input type="range" class="slider" id="costInsSlider" name="costIns" min="0" max="25" step="0.5" value="5">
+      <input type="range" class="slider" id="costInsSlider" name="costIns" min="0" max="100" step="0.01" value="5">
     </div>
     <div class="slider-container">
       Chronic/Critical Illness Rider: <span id="chronicDisplay" class="editable-value">0.0</span>%<br>
-      <input type="range" class="slider" id="chronicSlider" name="chronic" min="0" max="25" step="0.5" value="0">
+      <input type="range" class="slider" id="chronicSlider" name="chronic" min="0" max="100" step="0.01" value="0">
     </div>
     <div class="slider-container">
       Creditor Protection: <span id="creditorDisplay" class="editable-value">0.0</span>%<br>
-      <input type="range" class="slider" id="creditorSlider" name="creditor" min="0" max="25" step="0.5" value="0">
+      <input type="range" class="slider" id="creditorSlider" name="creditor" min="0" max="100" step="0.01" value="0">
     </div>
   </form>
   
@@ -375,11 +375,10 @@
     </label>
     <div id="advancedInputs" class="advanced-inputs">
       <div class="slider-container">
-        Risk Premium: <span id="riskPremiumDisplay" class="editable-value">2.0</span>%<span class="tooltip-icon" data-tooltip="If 3% feels 'safe,' how much more would the market need to pay you to make the risk worth it?">ⓘ</span><br>
-        <input type="range" class="slider" id="riskPremiumSlider" name="riskPremium" min="0" max="10" step="0.25" value="2.0">
-        <div class="helper-text">Risk Premium is how much extra return you expect above a 3% 'risk-free' rate to feel like taking market risk is worth it.</div>
+        Risk Premium: <span id="riskPremiumDisplay" class="editable-value">4.00</span>%<span class="tooltip-icon" data-tooltip="How much extra return you expect above the risk-free rate to compensate for market risk.">ⓘ</span><br>
+        <input type="range" class="slider" id="riskPremiumSlider" name="riskPremium" min="0" max="100" step="0.01" value="4.00">
+        <div class="helper-text">Risk Premium is how much extra return you expect above the risk-free rate to compensate for taking market risk.</div>
       </div>
-      <div id="hurdleCheck" class="hurdle-check"></div>
     </div>
   </div>
   
@@ -395,6 +394,8 @@
 
 <script>
 const SAVINGS_APY_BENCHMARK = 2.5;
+const BONDS_BENCHMARK = 4.75;
+const RISK_FREE = 0.04;
 
 function makeEditable(displayId, sliderId, min, max, step) {
   var display = document.getElementById(displayId);
@@ -438,12 +439,12 @@ function makeEditable(displayId, sliderId, min, max, step) {
 
 window.onload = function() {
   makeEditable('cashIRRDisplay', 'cashIRRSlider', 0, 20, 0.5);
-  makeEditable('taxRateDisplay', 'taxRateSlider', 0, 100, 1);
+  makeEditable('taxRateDisplay', 'taxRateSlider', 0, 100, 0.01);
   makeEditable('mgmtFeeDisplay', 'mgmtFeeSlider', 0, 25, 0.5);
-  makeEditable('costInsDisplay', 'costInsSlider', 0, 25, 0.5);
-  makeEditable('chronicDisplay', 'chronicSlider', 0, 25, 0.5);
-  makeEditable('creditorDisplay', 'creditorSlider', 0, 25, 0.5);
-  makeEditable('riskPremiumDisplay', 'riskPremiumSlider', 0, 10, 0.25);
+  makeEditable('costInsDisplay', 'costInsSlider', 0, 100, 0.01);
+  makeEditable('chronicDisplay', 'chronicSlider', 0, 100, 0.01);
+  makeEditable('creditorDisplay', 'creditorSlider', 0, 100, 0.01);
+  makeEditable('riskPremiumDisplay', 'riskPremiumSlider', 0, 100, 0.01);
   
   document.getElementById('cashIRRSlider').oninput = function() {
     document.getElementById('cashIRRDisplay').innerHTML = this.value;
@@ -514,35 +515,6 @@ window.calculate = function() {
 
   var wlShown = wlUnadjusted;
   var isRiskAdjusted = document.getElementById('riskAdjustedToggle').checked;
-  
-  if (isRiskAdjusted) {
-    var riskPremiumPct = parseFloat(document.getElementById('riskPremiumDisplay').innerHTML);
-    
-    if (isNaN(riskPremiumPct)) {
-      document.getElementById('result').innerHTML = 'Equivalent Return: Invalid risk inputs';
-      document.getElementById('savingsComparison').innerHTML = 
-        '<div class="comparison-line1">On average, over the last 30 years, high-yield savings accounts earned around 1–2.5% APY (after tax).</div>' +
-        '<div class="comparison-line2">Enter valid inputs to see the difference.</div>';
-      return;
-    }
-    
-    var riskPremium = riskPremiumPct / 100;
-    wlShown = wlUnadjusted - riskPremium;
-    
-    var riskFreeRate = 0.03;
-    var requiredReturn = riskFreeRate + riskPremium;
-    var hurdleCheckDiv = document.getElementById('hurdleCheck');
-    
-    if (wlShown >= requiredReturn) {
-      hurdleCheckDiv.innerHTML = '<span class="hurdle-pass">Your policy clears your risk hurdle.</span>';
-      hurdleCheckDiv.className = 'hurdle-check';
-    } else {
-      hurdleCheckDiv.innerHTML = '<span class="hurdle-fail">Your policy does not clear your risk hurdle.</span>';
-      hurdleCheckDiv.className = 'hurdle-check';
-    }
-  } else {
-    document.getElementById('hurdleCheck').innerHTML = '';
-  }
 
   var result = wlShown * 100;
 
@@ -574,23 +546,40 @@ window.calculate = function() {
     }
   }, 10);
 
+  var bondsBenchmark = BONDS_BENCHMARK / 100;
+  var bondsPercentDiff = ((wlShown - bondsBenchmark) / bondsBenchmark) * 100;
+  var bondsHigherLower = bondsPercentDiff >= 0 ? 'higher' : 'lower';
+  var bondsDeltaClass = bondsPercentDiff >= 0 ? 'delta-positive' : 'delta-negative';
+  var bondsAbsPercent = Math.abs(bondsPercentDiff).toFixed(1);
+  
   document.getElementById('savingsComparison').innerHTML = 
     '<div class="comparison-line1">Over the last 30 years, high-yield savings accounts earned around 2.5%.</div>' +
-    '<div class="comparison-line2">That means your whole life equivalent return is <span class="' + deltaClass + '">' + absPercent + '% ' + higherLower + ' than 2.5%</span>.</div>';
+    '<div class="comparison-line2">That means your whole life equivalent return is <span class="' + deltaClass + '">' + absPercent + '% ' + higherLower + ' than 2.5%</span>.</div>' +
+    '<div class="comparison-line1" style="margin-top: 10px;">Over the last 30 years, the U.S. Aggregate Bond Index earned around 4.75%.</div>' +
+    '<div class="comparison-line2">That means your whole life equivalent return is <span class="' + bondsDeltaClass + '">' + bondsAbsPercent + '% ' + bondsHigherLower + ' than 4.75%</span>.</div>';
 
   var riskAdjustedBox = document.getElementById('riskAdjustedResult');
   var riskAdjustedExpl = document.getElementById('riskAdjustedExplanation');
   
   if (isRiskAdjusted) {
-    var riskDiscount = 0.35;
-    var equivalentSafeYield = wlShown / (1 - riskDiscount);
-    var riskAdjustedPercent = equivalentSafeYield * 100;
+    var riskPremiumPct = parseFloat(document.getElementById('riskPremiumDisplay').innerHTML);
+    
+    if (isNaN(riskPremiumPct)) {
+      document.getElementById('result').innerHTML = 'Equivalent Return: Invalid risk inputs';
+      return;
+    }
+    
+    var eq = Math.max(0, wlShown);
+    var rp = Math.max(0, Math.min(1, riskPremiumPct / 100));
+    var riskDiscount = Math.min(0.99, rp / (RISK_FREE + rp));
+    var marketEquivalent = eq / (1 - riskDiscount);
+    var riskAdjustedPercent = Math.min(1, marketEquivalent) * 100;
     
     riskAdjustedBox.innerHTML = 'Risk-Adjusted Return: ' + riskAdjustedPercent.toFixed(2) + '%';
     riskAdjustedBox.classList.add('show');
     
     var wlReturnPercent = (wlShown * 100).toFixed(2);
-    riskAdjustedExpl.innerHTML = 'A Whole Life Equivalent return of ' + wlReturnPercent + '% feels like a ' + riskAdjustedPercent.toFixed(2) + '% market return when you account for risk.';
+    riskAdjustedExpl.innerHTML = 'A Whole Life Equivalent return of ' + wlReturnPercent + '% feels like a ' + riskAdjustedPercent.toFixed(2) + '% market return when you account for risk (risk-free 4%, risk premium ' + riskPremiumPct + '%).';
     riskAdjustedExpl.classList.add('show');
   } else {
     riskAdjustedBox.classList.remove('show');

@@ -87,7 +87,7 @@ function init() {
     const copyBtn = document.getElementById('copyBtn');
     let debounceTimer = null;
     const syncControls = (value) => {
-        state.controlCost = Math.max(0, Math.min(20, value));
+        state.controlCost = Math.max(0, Math.min(100, value));
         controlInput.value = state.controlCost.toFixed(1);
         controlSlider.value = state.controlCost.toFixed(1);
         if (debounceTimer)
