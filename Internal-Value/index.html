@@ -199,17 +199,6 @@
       cursor: pointer;
     }
 
-    .advanced-inputs {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-      margin-top: 15px;
-    }
-
-    .advanced-inputs.show {
-      max-height: 400px;
-    }
-
     .helper-text {
       font-size: 13px;
       color: #6b7280;
@@ -357,14 +346,11 @@
   <div class="toggle-container">
     <label class="toggle-label">
       <input type="checkbox" id="riskAdjustedToggle" class="toggle-checkbox">
-      Risk-adjusted (certainty-equivalent)
+      Risk-adjusted (market-equivalent)
     </label>
-    <div id="advancedInputs" class="advanced-inputs">
-      <div class="slider-container">
-        Risk Premium: <span id="riskPremiumDisplay" class="editable-value">4.00</span>%<span class="tooltip-icon" data-tooltip="How much extra return (in percent) you expect above the risk-free rate to compensate for taking market risk.">i</span><br>
-        <input type="range" class="slider" id="riskPremiumSlider" name="riskPremium" min="0" max="100" step="0.01" value="4.00">
-        <div class="helper-text">Risk Premium is how much extra return you expect above the risk-free rate to compensate for taking market risk.</div>
-      </div>
+    <div class="helper-text" id="riskFreeDisclosure">
+      Based on a <span id="rfrText">4.00%</span> risk-free rate (approx. short-term U.S. Treasuries). 
+      This shows what a market portfolio would need to earn to feel equivalent in certainty.
     </div>
   </div>
   
@@ -382,6 +368,7 @@
 const SAVINGS_APY_BENCHMARK = 2.5;
 const BONDS_BENCHMARK = 4.75;
 const RISK_FREE = 0.04;
+const RISK_SENSITIVITY_THETA = 1.6;
 
 function makeEditable(displayId, sliderId, min, max, step) {
   var display = document.getElementById(displayId);
@@ -438,18 +425,17 @@ window.onload = function() {
   document.getElementById('costInsSlider').setAttribute('max','100');
   document.getElementById('costInsSlider').setAttribute('step','0.01');
 
-  document.getElementById('riskPremiumSlider').setAttribute('min','0');
-  document.getElementById('riskPremiumSlider').setAttribute('max','100');
-  document.getElementById('riskPremiumSlider').setAttribute('step','0.01');
-  document.getElementById('riskPremiumSlider').value = '4.00';
-
   makeEditable('cashIRRDisplay', 'cashIRRSlider', 0, 100, 0.01);
   makeEditable('taxRateDisplay', 'taxRateSlider', 0, 100, 0.01);
   makeEditable('mgmtFeeDisplay', 'mgmtFeeSlider', 0, 100, 0.01);
   makeEditable('costInsDisplay', 'costInsSlider', 0, 100, 0.01);
   makeEditable('chronicDisplay', 'chronicSlider', 0, 100, 0.01);
   makeEditable('creditorDisplay', 'creditorSlider', 0, 100, 0.01);
-  makeEditable('riskPremiumDisplay', 'riskPremiumSlider', 0, 100, 0.01);
+
+  var rfrTextEl = document.getElementById('rfrText');
+  if (rfrTextEl) {
+    rfrTextEl.textContent = (RISK_FREE * 100).toFixed(2) + '%';
+  }
   
   document.getElementById('cashIRRSlider').oninput = function() {
     document.getElementById('cashIRRDisplay').innerHTML = parseFloat(this.value).toFixed(2);
@@ -475,20 +461,7 @@ window.onload = function() {
     document.getElementById('creditorDisplay').innerHTML = parseFloat(this.value).toFixed(2);
     calculate();
   };
-  document.getElementById('riskPremiumSlider').oninput = function() {
-    document.getElementById('riskPremiumDisplay').innerHTML = parseFloat(this.value).toFixed(2);
-    calculate();
-  };
-  
-  document.getElementById('riskAdjustedToggle').onchange = function() {
-    var advancedInputs = document.getElementById('advancedInputs');
-    if (this.checked) {
-      advancedInputs.classList.add('show');
-    } else {
-      advancedInputs.classList.remove('show');
-    }
-    calculate();
-  };
+  document.getElementById('riskAdjustedToggle').onchange = function() { calculate(); };
   
   calculate();
 };
@@ -563,34 +536,24 @@ window.calculate = function() {
     '<div class="comparison-line1" style="margin-top: 10px;">Over the last 30 years, the U.S. Aggregate Bond Index earned around 4.75%.</div>' +
     '<div class="comparison-line2">That means your whole life equivalent return is <span class="' + bondsDeltaClass + '">' + bondsAbsPercent + '% ' + bondsHigherLower + ' than 4.75%</span>.</div>';
 
-  var riskAdjustedBox = document.getElementById('riskAdjustedResult');
-  var riskAdjustedExpl = document.getElementById('riskAdjustedExplanation');
-  
-  if (isRiskAdjusted) {
-    var riskPremiumPct = parseFloat(document.getElementById('riskPremiumDisplay').innerHTML);
-    
-    if (isNaN(riskPremiumPct)) {
-      document.getElementById('result').innerHTML = 'Equivalent Return: Invalid risk inputs';
-      return;
-    }
-    
-    // Use correct formula: marketEquivalentPct = equivalentReturnPct / (1 - rp)
-    var equivalentReturnPct = wlShown * 100; // convert to percent (e.g., 0.0909 -> 9.09)
-    var rp = riskPremiumPct / 100;
+  const riskAdjustedBox = document.getElementById('riskAdjustedResult');
+  const riskAdjustedExpl = document.getElementById('riskAdjustedExplanation');
 
-    if (1 - rp <= 0) {
-      riskAdjustedBox.innerHTML = 'Risk-Adjusted Return: Invalid risk premium';
-      riskAdjustedBox.classList.add('show');
-      riskAdjustedExpl.innerHTML = 'Risk premium must be less than 100%. Please choose a smaller risk premium.';
-      riskAdjustedExpl.classList.add('show');
-    } else {
-      var marketEquivalentPct = equivalentReturnPct / (1 - rp);
-      riskAdjustedBox.innerHTML = 'Risk-Adjusted Return: ' + marketEquivalentPct.toFixed(2) + '%';
-      riskAdjustedBox.classList.add('show');
-      
-      riskAdjustedExpl.innerHTML = 'A Whole Life Equivalent return of ' + equivalentReturnPct.toFixed(2) + '% corresponds to a market-equivalent return of ' + marketEquivalentPct.toFixed(2) + '% when adjusted with a ' + riskPremiumPct.toFixed(2) + '% risk premium.';
-      riskAdjustedExpl.classList.add('show');
-    }
+  if (isRiskAdjusted) {
+    const wlerPct = wlShown * 100;
+    const rfrPct  = RISK_FREE * 100;
+    const gap     = Math.max(0, wlerPct - rfrPct);
+    const multiplier = 1 + RISK_SENSITIVITY_THETA;
+    const requiredPct = rfrPct + multiplier * gap;
+
+    riskAdjustedBox.innerHTML = 'Risk-Adjusted Return: ' + requiredPct.toFixed(2) + '%';
+    riskAdjustedBox.classList.add('show');
+
+    riskAdjustedExpl.innerHTML =
+      'Your Whole Life Equivalent return of ' + wlerPct.toFixed(2) + '% would require about ' +
+      requiredPct.toFixed(2) + '% in the market to feel equally certain. ' +
+      'Assumes a ' + rfrPct.toFixed(2) + '% risk-free rate and an internal scaling that increases the premium as the gap above risk-free grows.';
+    riskAdjustedExpl.classList.add('show');
   } else {
     riskAdjustedBox.classList.remove('show');
     riskAdjustedExpl.classList.remove('show');
