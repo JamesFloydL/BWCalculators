@@ -546,12 +546,10 @@ window.calculate = function() {
     riskAdjustedBox.innerHTML = 'Risk-Adjusted Return: ' + requiredPct.toFixed(2) + '%';
     riskAdjustedBox.classList.add('show');
 
-    riskAdjustedExpl.innerHTML =
-      'Your Whole Life Equivalent return of ' + wlerPct.toFixed(2) +
-      '% adjusts to about ' + requiredPct.toFixed(2) +
-      '% when accounting for a 4% risk-free baseline and a modest risk premium.';
+    riskAdjustedExpl.innerHTML = 'We apply a conservative 20% factor to the difference between the equivalent value and the 4% risk-free rate. This represents the minimum risk premium required to earn higher returns in traditional investments. The result is a modest and realistic risk-adjusted return that makes the comparison fair.';
     riskAdjustedExpl.classList.add('show');
   } else {
+    riskAdjustedExpl.innerHTML = 'Risk-adjusted returns add a small premium to reflect the minimum risk required to earn equivalent results in traditional market investments.';
     riskAdjustedBox.classList.remove('show');
     riskAdjustedExpl.classList.remove('show');
   }
