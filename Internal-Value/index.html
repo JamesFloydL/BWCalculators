@@ -368,7 +368,6 @@
 const SAVINGS_APY_BENCHMARK = 2.5;
 const BONDS_BENCHMARK = 4.75;
 const RISK_FREE = 0.04;
-const RISK_SENSITIVITY_THETA = 1.6;
 
 function makeEditable(displayId, sliderId, min, max, step) {
   var display = document.getElementById(displayId);
@@ -540,20 +539,23 @@ window.calculate = function() {
   const riskAdjustedExpl = document.getElementById('riskAdjustedExplanation');
 
   if (isRiskAdjusted) {
-    const wlerPct = wlShown * 100;
-    const rfrPct  = RISK_FREE * 100;
-    const gap     = Math.max(0, wlerPct - rfrPct);
-    const multiplier = 1 + RISK_SENSITIVITY_THETA;
-    const requiredPct = rfrPct + multiplier * gap;
+    // wlShown is your Whole Life Equivalent return (decimal)
+const ev = wlShown;  // example: 0.065
+
+// new formula: risk adjusted = ev + (ev - 0.04) * 0.2
+const riskAdj = wlShown + (wlShown - Risk_Free) * 0.2;
+
+// convert back to percent for UI
+const requiredPct = riskAdj * 100;
 
     riskAdjustedBox.innerHTML = 'Risk-Adjusted Return: ' + requiredPct.toFixed(2) + '%';
     riskAdjustedBox.classList.add('show');
 
-    riskAdjustedExpl.innerHTML =
-      'Your Whole Life Equivalent return of ' + wlerPct.toFixed(2) + '% would require about ' +
-      requiredPct.toFixed(2) + '% in the market to feel equally certain. ' +
-      'Assumes a ' + rfrPct.toFixed(2) + '% risk-free rate and an internal scaling that increases the premium as the gap above risk-free grows.';
-    riskAdjustedExpl.classList.add('show');
+   riskAdjustedExpl.innerHTML =
+  'Your Whole Life Equivalent return of ' + wlerPct.toFixed(2) +
+  '% adjusts to about ' + requiredPct.toFixed(2) +
+  '% when accounting for a 4% risk-free baseline and a modest risk premium.';
+riskAdjustedExpl.classList.add('show');
   } else {
     riskAdjustedBox.classList.remove('show');
     riskAdjustedExpl.classList.remove('show');
