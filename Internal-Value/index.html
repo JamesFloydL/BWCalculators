@@ -539,23 +539,18 @@ window.calculate = function() {
   const riskAdjustedExpl = document.getElementById('riskAdjustedExplanation');
 
   if (isRiskAdjusted) {
-    // wlShown is your Whole Life Equivalent return (decimal)
-const ev = wlShown;  // example: 0.065
-
-// new formula: risk adjusted = ev + (ev - 0.04) * 0.2
-const riskAdj = wlShown + (wlShown - Risk_Free) * 0.2;
-
-// convert back to percent for UI
-const requiredPct = riskAdj * 100;
+    const wlerPct = wlShown * 100;
+    const riskAdj = wlShown + (wlShown - 0.04) * 0.2;
+    const requiredPct = riskAdj * 100;
 
     riskAdjustedBox.innerHTML = 'Risk-Adjusted Return: ' + requiredPct.toFixed(2) + '%';
     riskAdjustedBox.classList.add('show');
 
-   riskAdjustedExpl.innerHTML =
-  'Your Whole Life Equivalent return of ' + wlerPct.toFixed(2) +
-  '% adjusts to about ' + requiredPct.toFixed(2) +
-  '% when accounting for a 4% risk-free baseline and a modest risk premium.';
-riskAdjustedExpl.classList.add('show');
+    riskAdjustedExpl.innerHTML =
+      'Your Whole Life Equivalent return of ' + wlerPct.toFixed(2) +
+      '% adjusts to about ' + requiredPct.toFixed(2) +
+      '% when accounting for a 4% risk-free baseline and a modest risk premium.';
+    riskAdjustedExpl.classList.add('show');
   } else {
     riskAdjustedBox.classList.remove('show');
     riskAdjustedExpl.classList.remove('show');
